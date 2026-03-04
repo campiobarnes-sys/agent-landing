@@ -38,8 +38,18 @@
     .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); text-decoration: none; }
     .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); text-decoration: none; }
+    @media (max-width: 600px) { nav { padding: 1rem 1.25rem; } }
 
     .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+    /* SKELETON / LOADING STATE */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
 
     /* HEADER */
     .results-header { text-align: center; margin-bottom: 3rem; animation: slideUp 0.6s ease both; }
@@ -51,7 +61,7 @@
     .badge-green { background: rgba(74,222,128,0.08); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
     .badge-muted { background: rgba(107,106,114,0.1); color: var(--muted); border: 1px solid var(--border); }
     .results-header h1 { font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.75rem; }
-    .results-header p { color: var(--muted); max-width: 480px; margin: 0 auto; }
+    .results-header p { color: var(--muted); max-width: 500px; margin: 0 auto; }
 
     /* STATS */
     .stats-row {
@@ -71,63 +81,71 @@
     .module-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 18px; padding: 2rem;
-      animation: slideUp 0.6s ease both;
+      animation: slideUp 0.5s ease both;
     }
-    .module-card:nth-child(1) { animation-delay: 0.1s; }
-    .module-card:nth-child(2) { animation-delay: 0.2s; }
     .module-card-header { display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.5rem; }
     .module-number {
       font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 800; color: var(--gold);
       line-height: 1; flex-shrink: 0; width: 48px; text-align: center;
     }
     .module-meta { flex: 1; }
-    .module-meta h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
-    .module-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .module-meta h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .module-desc { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.5rem; line-height: 1.6; }
+    .module-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
     .badge-sm {
       padding: 0.2rem 0.6rem; border-radius: 999px;
       font-size: 0.7rem; font-weight: 600;
     }
     .badge-sm-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
     .badge-sm-muted { background: rgba(107,106,114,0.1); color: var(--muted); border: 1px solid var(--border); }
+    .badge-sm-green { background: rgba(74,222,128,0.08); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
 
-    .module-section { margin-bottom: 1.25rem; }
-    .module-section h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+    .module-section { margin-top: 1.25rem; }
+    .module-section h4 {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem;
+    }
     .project-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
     .project-list li {
-      display: flex; align-items: center; gap: 0.6rem;
-      font-size: 0.88rem; color: var(--text);
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font-size: 0.88rem; color: var(--text); line-height: 1.5;
     }
-    .project-list li::before { content: '→'; color: var(--gold); font-size: 0.8rem; }
+    .project-list li::before { content: '→'; color: var(--gold); font-size: 0.8rem; flex-shrink: 0; margin-top: 0.1rem; }
     .resources-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .resource-link {
+    .resource-chip {
       padding: 0.3rem 0.75rem; border-radius: 8px;
       background: var(--surface2); border: 1px solid var(--border);
       font-size: 0.78rem; color: var(--muted);
-      text-decoration: none; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.35rem;
     }
-    .resource-link:hover { border-color: var(--gold); color: var(--gold); text-decoration: none; }
+    .resource-type {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--gold); opacity: 0.8;
+    }
 
     /* LOCK GATE */
-    .lock-gate {
-      position: relative; margin-top: 1.25rem;
-    }
-    .locked-modules { position: relative; }
-    .locked-blur {
-      filter: blur(4px); pointer-events: none;
-      opacity: 0.4; user-select: none;
-    }
+    .lock-gate { position: relative; margin-top: 1.25rem; }
+    .locked-blur { filter: blur(5px); pointer-events: none; opacity: 0.35; user-select: none; }
     .lock-overlay {
       position: absolute; inset: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      background: radial-gradient(ellipse at center, rgba(10,11,15,0.85) 0%, rgba(10,11,15,0.6) 100%);
-      border-radius: 18px; padding: 2rem; text-align: center;
-      z-index: 10;
+      background: radial-gradient(ellipse at center, rgba(10,11,15,0.9) 0%, rgba(10,11,15,0.7) 100%);
+      border-radius: 18px; padding: 2.5rem; text-align: center; z-index: 10;
     }
     .lock-icon { font-size: 2.5rem; margin-bottom: 1rem; }
     .lock-overlay h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .lock-overlay p { color: var(--muted); font-size: 0.9rem; max-width: 380px; margin-bottom: 1.75rem; }
+    .lock-overlay p { color: var(--muted); font-size: 0.9rem; max-width: 380px; margin-bottom: 1.75rem; line-height: 1.6; }
     .price-highlight { color: var(--gold); font-weight: 700; }
+
+    /* ERROR STATE */
+    .error-state {
+      text-align: center; padding: 4rem 2rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+    .error-state h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .error-state p { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
 
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -142,140 +160,125 @@
     </div>
   </nav>
 
-  <div class="container">
-
-    <div class="results-header">
-      <div class="badge badge-gold">✦ Personalized for you</div>
-      <h1>Your Campio Learning Path</h1>
-      <p>Built for a developer who wants to build AI products, available 5h/week. Here's your 12-week curriculum.</p>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat"><div class="num">12</div><div class="label">Weeks total</div></div>
-      <div class="stat"><div class="num">5</div><div class="label">Modules</div></div>
-      <div class="stat"><div class="num">8</div><div class="label">Projects</div></div>
-      <div class="stat"><div class="num">50+</div><div class="label">Resources</div></div>
-    </div>
-
-    <div class="modules">
-
-      <!-- MODULE 1 -->
-      <div class="module-card">
-        <div class="module-card-header">
-          <div class="module-number">01</div>
-          <div class="module-meta">
-            <h3>Foundations of AI &amp; Machine Learning</h3>
-            <div class="module-badges">
-              <span class="badge-sm badge-sm-gold">2 weeks · 8h</span>
-              <span class="badge badge-green" style="font-size:0.7rem;padding:0.2rem 0.6rem;">✓ Unlocked</span>
-            </div>
-          </div>
-        </div>
-        <div class="module-section">
-          <h4>Projects</h4>
-          <ul class="project-list">
-            <li>Build a simple image classifier using a pre-trained model</li>
-            <li>Explore and visualize an ML dataset end-to-end</li>
-            <li>Write a plain-English explainer on how LLMs work</li>
-          </ul>
-        </div>
-        <div class="module-section">
-          <h4>Resources</h4>
-          <div class="resources-list">
-            <a class="resource-link" href="#">fast.ai Practical Deep Learning</a>
-            <a class="resource-link" href="#">3Blue1Brown — Neural Networks</a>
-            <a class="resource-link" href="#">deeplearning.ai ML Specialization</a>
-            <a class="resource-link" href="#">Andrej Karpathy — Zero to Hero</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODULE 2 -->
-      <div class="module-card">
-        <div class="module-card-header">
-          <div class="module-number">02</div>
-          <div class="module-meta">
-            <h3>Prompt Engineering Mastery</h3>
-            <div class="module-badges">
-              <span class="badge-sm badge-sm-gold">2 weeks · 6h</span>
-              <span class="badge badge-green" style="font-size:0.7rem;padding:0.2rem 0.6rem;">✓ Unlocked</span>
-            </div>
-          </div>
-        </div>
-        <div class="module-section">
-          <h4>Projects</h4>
-          <ul class="project-list">
-            <li>Build a personal prompt library with 20+ battle-tested prompts</li>
-            <li>Chain-of-thought demo: solve 5 complex problems with structured prompting</li>
-          </ul>
-        </div>
-        <div class="module-section">
-          <h4>Resources</h4>
-          <div class="resources-list">
-            <a class="resource-link" href="#">OpenAI Prompt Engineering Guide</a>
-            <a class="resource-link" href="#">deeplearning.ai — ChatGPT for Devs</a>
-            <a class="resource-link" href="#">Lilian Weng's Prompting Blog</a>
-            <a class="resource-link" href="#">Learn Prompting (open source)</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- LOCKED MODULES -->
-      <div class="lock-gate">
-        <div class="locked-modules locked-blur">
-          <div class="module-card" style="margin-bottom:1.25rem;">
-            <div class="module-card-header">
-              <div class="module-number">03</div>
-              <div class="module-meta">
-                <h3>Building with LLMs &amp; APIs</h3>
-                <div class="module-badges">
-                  <span class="badge-sm badge-sm-muted">3 weeks · 12h</span>
-                </div>
-              </div>
-            </div>
-            <div class="module-section">
-              <h4>Projects</h4>
-              <ul class="project-list">
-                <li>Build a fully functional AI chatbot with memory</li>
-                <li>Integrate OpenAI API into a real web app</li>
-              </ul>
-            </div>
-          </div>
-          <div class="module-card" style="margin-bottom:1.25rem;">
-            <div class="module-card-header">
-              <div class="module-number">04</div>
-              <div class="module-meta">
-                <h3>AI Agents &amp; Automation</h3>
-                <div class="module-badges">
-                  <span class="badge-sm badge-sm-muted">2 weeks · 8h</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="module-card">
-            <div class="module-card-header">
-              <div class="module-number">05</div>
-              <div class="module-meta">
-                <h3>Ship Your AI Product</h3>
-                <div class="module-badges">
-                  <span class="badge-sm badge-sm-muted">3 weeks · 10h</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="lock-overlay">
-          <div class="lock-icon">🔒</div>
-          <h3>Unlock your full path</h3>
-          <p>Modules 3–5 include building real AI apps, shipping your first product, and mastering agents &amp; automation. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
-          <a href="pricing.html" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;">Get full access — $19 →</a>
-          <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
-        </div>
-      </div>
-
-    </div>
+  <div class="container" id="main-container">
+    <!-- Rendered by JS -->
   </div>
 
+  <script>
+    const typeIcons = { course: '🎓', video: '▶', docs: '📄', article: '📝' };
+
+    function renderPath(path) {
+      const container = document.getElementById('main-container');
+
+      const unlockedCount = Math.min(2, path.modules.length);
+      const lockedModules = path.modules.slice(unlockedCount);
+      const unlockedModules = path.modules.slice(0, unlockedCount);
+
+      let html = `
+        <div class="results-header">
+          <div class="badge badge-gold">✦ Personalized for you</div>
+          <h1>${path.headline}</h1>
+          <p>${path.summary}</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat"><div class="num">${path.totalWeeks}</div><div class="label">Weeks total</div></div>
+          <div class="stat"><div class="num">${path.modules.length}</div><div class="label">Modules</div></div>
+          <div class="stat"><div class="num">${path.totalProjects}</div><div class="label">Projects</div></div>
+          <div class="stat"><div class="num">${path.totalResources}+</div><div class="label">Resources</div></div>
+        </div>
+
+        <div class="modules">
+      `;
+
+      // Unlocked modules
+      unlockedModules.forEach((mod, i) => {
+        html += renderModuleCard(mod, true, i * 0.1);
+      });
+
+      // Lock gate
+      if (lockedModules.length > 0) {
+        html += `<div class="lock-gate"><div class="locked-blur">`;
+        lockedModules.forEach((mod, i) => {
+          html += renderModuleCard(mod, false, 0);
+        });
+        html += `</div>
+          <div class="lock-overlay">
+            <div class="lock-icon">🔒</div>
+            <h3>Unlock your full path</h3>
+            <p>Your remaining ${lockedModules.length} modules are ready — including real projects, curated resources, and everything you need to ship. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
+            <a href="pricing.html" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;">Get full access — $19 →</a>
+            <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
+          </div>
+        </div>`;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function renderModuleCard(mod, unlocked, delay) {
+      const statusBadge = unlocked
+        ? `<span class="badge-sm badge-sm-green">✓ Unlocked</span>`
+        : `<span class="badge-sm badge-sm-muted">🔒 Locked</span>`;
+
+      const projects = (mod.projects || []).map(p =>
+        `<li>${p}</li>`
+      ).join('');
+
+      const resources = (mod.resources || []).map(r =>
+        `<div class="resource-chip"><span class="resource-type">${r.type}</span> ${r.name}</div>`
+      ).join('');
+
+      return `
+        <div class="module-card" style="animation-delay:${delay}s">
+          <div class="module-card-header">
+            <div class="module-number">${String(mod.number).padStart(2, '0')}</div>
+            <div class="module-meta">
+              <h3>${mod.title}</h3>
+              ${mod.description ? `<p class="module-desc">${mod.description}</p>` : ''}
+              <div class="module-badges">
+                <span class="badge-sm badge-sm-gold">${mod.weeks} weeks · ${mod.hours}h</span>
+                ${statusBadge}
+              </div>
+            </div>
+          </div>
+          ${projects ? `
+          <div class="module-section">
+            <h4>Projects</h4>
+            <ul class="project-list">${projects}</ul>
+          </div>` : ''}
+          ${resources ? `
+          <div class="module-section">
+            <h4>Resources</h4>
+            <div class="resources-list">${resources}</div>
+          </div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderError() {
+      document.getElementById('main-container').innerHTML = `
+        <div class="error-state">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">⚠️</div>
+          <h2>No path found</h2>
+          <p>It looks like you landed here directly. Take the quiz first and we'll build your personalized path.</p>
+          <a href="onboarding.html" class="btn btn-gold">Build my path →</a>
+        </div>
+      `;
+    }
+
+    // Load path from sessionStorage
+    const stored = sessionStorage.getItem('campio_path');
+    if (stored) {
+      try {
+        renderPath(JSON.parse(stored));
+      } catch (e) {
+        renderError();
+      }
+    } else {
+      renderError();
+    }
+  </script>
 </body>
 </html>

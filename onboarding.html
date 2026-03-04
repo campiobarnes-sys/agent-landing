@@ -12,7 +12,7 @@
     :root {
       --bg: #0a0b0f; --surface: #10121a; --border: #1e2030;
       --gold: #c9a84c; --gold-light: #e8c97a; --gold-glow: rgba(201,168,76,0.12);
-      --text: #f0efe8; --muted: #6b6a72;
+      --text: #f0efe8; --muted: #6b6a72; --red: #f87171;
     }
     html, body { height: 100%; }
     body {
@@ -22,7 +22,6 @@
     }
     h1, h2, h3 { font-family: 'Sora', sans-serif; }
 
-    /* PROGRESS BAR */
     .progress-bar-wrap {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       height: 3px; background: var(--border);
@@ -32,16 +31,14 @@
       transition: width 0.4s ease;
     }
 
-    /* TOP NAV */
     .top-nav {
       position: fixed; top: 3px; left: 0; right: 0; z-index: 99;
       padding: 1rem 2rem;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .nav-logo { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--gold); text-decoration: none; }
     .step-counter { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
 
-    /* SCREEN */
     .screen {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
@@ -51,13 +48,8 @@
       transform: translateY(20px);
       transition: opacity 0.35s ease, transform 0.35s ease;
     }
-    .screen.active {
-      opacity: 1; pointer-events: all;
-      transform: translateY(0);
-    }
-    .screen.exit {
-      opacity: 0; transform: translateY(-20px);
-    }
+    .screen.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .screen.exit { opacity: 0; transform: translateY(-20px); }
 
     .question {
       font-size: clamp(1.6rem, 4.5vw, 3rem);
@@ -82,13 +74,9 @@
       user-select: none;
     }
     .option:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
-    .option.selected {
-      border-color: var(--gold); background: var(--gold-glow);
-      color: var(--gold);
-    }
+    .option.selected { border-color: var(--gold); background: var(--gold-glow); color: var(--gold); }
     .option .emoji { font-size: 1.4rem; display: block; margin-bottom: 0.5rem; }
 
-    /* BACK BUTTON */
     .back-btn {
       position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
       background: none; border: none; color: var(--muted);
@@ -104,28 +92,31 @@
       background: var(--bg);
       display: none; flex-direction: column;
       align-items: center; justify-content: center;
-      z-index: 200;
+      z-index: 200; text-align: center; padding: 2rem;
     }
     #loading-screen.show { display: flex; }
     .loading-logo { font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--gold); margin-bottom: 2.5rem; }
-    .loading-text { font-size: 1.1rem; color: var(--muted); margin-bottom: 2rem; font-weight: 500; }
+    .loading-text { font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem; font-weight: 600; font-family: 'Sora', sans-serif; }
+    .loading-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 2rem; }
     .loading-bar-wrap { width: 280px; height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
     .loading-bar-fill {
       height: 100%; width: 0%; background: var(--gold); border-radius: 999px;
-      animation: loadingFill 2s ease forwards;
+      transition: width 0.4s ease;
     }
-    @keyframes loadingFill { to { width: 100%; } }
     .loading-steps { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
     .loading-step {
       font-size: 0.82rem; color: var(--muted);
       display: flex; align-items: center; gap: 0.5rem;
-      opacity: 0; animation: fadeIn 0.4s ease forwards;
+      opacity: 0; transition: opacity 0.4s ease;
     }
-    .loading-step:nth-child(1) { animation-delay: 0.3s; }
-    .loading-step:nth-child(2) { animation-delay: 0.9s; }
-    .loading-step:nth-child(3) { animation-delay: 1.4s; }
-    .loading-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-    @keyframes fadeIn { to { opacity: 1; } }
+    .loading-step.visible { opacity: 1; }
+    .loading-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+    .error-msg {
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      color: var(--red); padding: 0.75rem 1.25rem; border-radius: 10px;
+      font-size: 0.85rem; margin-top: 1.5rem; max-width: 480px; text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -143,10 +134,10 @@
   <div class="screen active" id="screen-1">
     <h2 class="question">What's your current <em>level with AI</em>?</h2>
     <div class="options">
-      <div class="option" onclick="select(1, this)"><span class="emoji">🌱</span>Complete beginner</div>
-      <div class="option" onclick="select(1, this)"><span class="emoji">🔍</span>Some exposure</div>
-      <div class="option" onclick="select(1, this)"><span class="emoji">⚡</span>Intermediate</div>
-      <div class="option" onclick="select(1, this)"><span class="emoji">🚀</span>Already building</div>
+      <div class="option" data-key="level" data-value="Complete beginner" onclick="selectOption(this)"><span class="emoji">🌱</span>Complete beginner</div>
+      <div class="option" data-key="level" data-value="Some exposure" onclick="selectOption(this)"><span class="emoji">🔍</span>Some exposure</div>
+      <div class="option" data-key="level" data-value="Intermediate" onclick="selectOption(this)"><span class="emoji">⚡</span>Intermediate</div>
+      <div class="option" data-key="level" data-value="Already building" onclick="selectOption(this)"><span class="emoji">🚀</span>Already building</div>
     </div>
   </div>
 
@@ -154,10 +145,10 @@
   <div class="screen" id="screen-2">
     <h2 class="question">What do you want to <em>achieve</em>?</h2>
     <div class="options">
-      <div class="option" onclick="select(2, this)"><span class="emoji">🧠</span>Understand AI basics</div>
-      <div class="option" onclick="select(2, this)"><span class="emoji">🛠️</span>Build AI products</div>
-      <div class="option" onclick="select(2, this)"><span class="emoji">💼</span>Transition into AI career</div>
-      <div class="option" onclick="select(2, this)"><span class="emoji">📡</span>Stay ahead in my field</div>
+      <div class="option" data-key="goal" data-value="Understand AI basics" onclick="selectOption(this)"><span class="emoji">🧠</span>Understand AI basics</div>
+      <div class="option" data-key="goal" data-value="Build AI products" onclick="selectOption(this)"><span class="emoji">🛠️</span>Build AI products</div>
+      <div class="option" data-key="goal" data-value="Transition into AI career" onclick="selectOption(this)"><span class="emoji">💼</span>Transition into AI career</div>
+      <div class="option" data-key="goal" data-value="Stay ahead in my field" onclick="selectOption(this)"><span class="emoji">📡</span>Stay ahead in my field</div>
     </div>
   </div>
 
@@ -165,10 +156,10 @@
   <div class="screen" id="screen-3">
     <h2 class="question">How much <em>time</em> can you dedicate per week?</h2>
     <div class="options">
-      <div class="option" onclick="select(3, this)"><span class="emoji">⏱️</span>2–3 hours</div>
-      <div class="option" onclick="select(3, this)"><span class="emoji">🕐</span>4–6 hours</div>
-      <div class="option" onclick="select(3, this)"><span class="emoji">🔥</span>7–10 hours</div>
-      <div class="option" onclick="select(3, this)"><span class="emoji">⚡</span>10+ hours</div>
+      <div class="option" data-key="time" data-value="2-3 hours" onclick="selectOption(this)"><span class="emoji">⏱️</span>2–3 hours</div>
+      <div class="option" data-key="time" data-value="4-6 hours" onclick="selectOption(this)"><span class="emoji">🕐</span>4–6 hours</div>
+      <div class="option" data-key="time" data-value="7-10 hours" onclick="selectOption(this)"><span class="emoji">🔥</span>7–10 hours</div>
+      <div class="option" data-key="time" data-value="10+ hours" onclick="selectOption(this)"><span class="emoji">⚡</span>10+ hours</div>
     </div>
   </div>
 
@@ -176,11 +167,11 @@
   <div class="screen" id="screen-4">
     <h2 class="question">What's your <em>background</em>?</h2>
     <div class="options">
-      <div class="option" onclick="select(4, this)"><span class="emoji">💻</span>Developer</div>
-      <div class="option" onclick="select(4, this)"><span class="emoji">📊</span>Business professional</div>
-      <div class="option" onclick="select(4, this)"><span class="emoji">🎓</span>Student</div>
-      <div class="option" onclick="select(4, this)"><span class="emoji">🎨</span>Creative</div>
-      <div class="option" onclick="select(4, this)"><span class="emoji">🌐</span>Other</div>
+      <div class="option" data-key="background" data-value="Developer" onclick="selectOption(this)"><span class="emoji">💻</span>Developer</div>
+      <div class="option" data-key="background" data-value="Business professional" onclick="selectOption(this)"><span class="emoji">📊</span>Business professional</div>
+      <div class="option" data-key="background" data-value="Student" onclick="selectOption(this)"><span class="emoji">🎓</span>Student</div>
+      <div class="option" data-key="background" data-value="Creative" onclick="selectOption(this)"><span class="emoji">🎨</span>Creative</div>
+      <div class="option" data-key="background" data-value="Other" onclick="selectOption(this)"><span class="emoji">🌐</span>Other</div>
     </div>
   </div>
 
@@ -188,10 +179,10 @@
   <div class="screen" id="screen-5">
     <h2 class="question">What's your preferred <em>learning style</em>?</h2>
     <div class="options">
-      <div class="option" onclick="select(5, this)"><span class="emoji">📖</span>Reading &amp; docs</div>
-      <div class="option" onclick="select(5, this)"><span class="emoji">🎬</span>Video tutorials</div>
-      <div class="option" onclick="select(5, this)"><span class="emoji">🛠️</span>Hands-on projects</div>
-      <div class="option" onclick="select(5, this)"><span class="emoji">🔀</span>Mixed</div>
+      <div class="option" data-key="style" data-value="Reading and docs" onclick="selectOption(this)"><span class="emoji">📖</span>Reading &amp; docs</div>
+      <div class="option" data-key="style" data-value="Video tutorials" onclick="selectOption(this)"><span class="emoji">🎬</span>Video tutorials</div>
+      <div class="option" data-key="style" data-value="Hands-on projects" onclick="selectOption(this)"><span class="emoji">🛠️</span>Hands-on projects</div>
+      <div class="option" data-key="style" data-value="Mixed" onclick="selectOption(this)"><span class="emoji">🔀</span>Mixed</div>
     </div>
   </div>
 
@@ -199,12 +190,14 @@
   <div id="loading-screen">
     <div class="loading-logo">Campio</div>
     <div class="loading-text">Building your personalized path...</div>
-    <div class="loading-bar-wrap"><div class="loading-bar-fill"></div></div>
+    <div class="loading-sub">Claude is generating your custom curriculum</div>
+    <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loading-bar"></div></div>
     <div class="loading-steps">
-      <div class="loading-step"><span class="dot"></span>Analyzing your profile</div>
-      <div class="loading-step"><span class="dot"></span>Selecting modules &amp; projects</div>
-      <div class="loading-step"><span class="dot"></span>Curating resources for you</div>
+      <div class="loading-step" id="lstep-1"><span class="dot"></span>Analyzing your profile</div>
+      <div class="loading-step" id="lstep-2"><span class="dot"></span>Selecting modules &amp; projects</div>
+      <div class="loading-step" id="lstep-3"><span class="dot"></span>Curating resources for you</div>
     </div>
+    <div id="error-container"></div>
   </div>
 
   <button class="back-btn" id="back-btn" onclick="goBack()" style="display:none">← Back</button>
@@ -212,10 +205,12 @@
   <script>
     let current = 1;
     const total = 5;
+    const answers = {};
 
-    function select(step, el) {
+    function selectOption(el) {
       el.parentNode.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
+      answers[el.dataset.key] = el.dataset.value;
       setTimeout(() => advance(), 400);
     }
 
@@ -229,19 +224,16 @@
       setTimeout(() => {
         cur.classList.remove('active', 'exit');
         current++;
-        const next = document.getElementById('screen-' + current);
-        next.classList.add('active');
+        document.getElementById('screen-' + current).classList.add('active');
         updateProgress();
       }, 350);
     }
 
     function goBack() {
       if (current <= 1) return;
-      const cur = document.getElementById('screen-' + current);
-      cur.classList.remove('active');
+      document.getElementById('screen-' + current).classList.remove('active');
       current--;
-      const prev = document.getElementById('screen-' + current);
-      prev.classList.add('active');
+      document.getElementById('screen-' + current).classList.add('active');
       updateProgress();
     }
 
@@ -251,9 +243,52 @@
       document.getElementById('back-btn').style.display = current > 1 ? 'block' : 'none';
     }
 
-    function showLoading() {
+    function animateLoadingBar(targetPct, durationMs) {
+      const bar = document.getElementById('loading-bar');
+      bar.style.transition = `width ${durationMs}ms ease`;
+      bar.style.width = targetPct + '%';
+    }
+
+    async function showLoading() {
       document.getElementById('loading-screen').classList.add('show');
-      setTimeout(() => { window.location.href = 'results.html'; }, 2200);
+      document.getElementById('back-btn').style.display = 'none';
+
+      // Animate loading steps
+      animateLoadingBar(30, 600);
+      setTimeout(() => document.getElementById('lstep-1').classList.add('visible'), 400);
+      setTimeout(() => {
+        animateLoadingBar(65, 800);
+        document.getElementById('lstep-2').classList.add('visible');
+      }, 1200);
+      setTimeout(() => {
+        animateLoadingBar(85, 600);
+        document.getElementById('lstep-3').classList.add('visible');
+      }, 2200);
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(answers)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Generation failed');
+        }
+
+        // Save to sessionStorage and redirect
+        sessionStorage.setItem('campio_path', JSON.stringify(data.path));
+        animateLoadingBar(100, 300);
+        setTimeout(() => { window.location.href = 'results.html'; }, 500);
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('error-container').innerHTML =
+          `<div class="error-msg">Something went wrong generating your path. Please <a href="onboarding.html" style="color:var(--gold)">try again</a>.</div>`;
+        animateLoadingBar(0, 300);
+      }
     }
   </script>
 </body>
