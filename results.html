@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campio — Your Learning Path</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0b0f; --surface: #10121a; --surface2: #13151f; --border: #1e2030;
+      --gold: #c9a84c; --gold-light: #e8c97a; --gold-glow: rgba(201,168,76,0.12);
+      --text: #f0efe8; --muted: #6b6a72; --green: #4ade80;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.6; }
+    h1,h2,h3,h4 { font-family: 'Sora', sans-serif; }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      padding: 1.1rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,11,15,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .nav-actions { display: flex; gap: 1rem; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.3rem; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all 0.2s; border: none;
+    }
+    .btn-gold { background: var(--gold); color: #0a0b0f; }
+    .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); text-decoration: none; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); text-decoration: none; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+    /* HEADER */
+    .results-header { text-align: center; margin-bottom: 3rem; animation: slideUp 0.6s ease both; }
+    .badge {
+      display: inline-block; padding: 0.3rem 0.85rem; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.25rem;
+    }
+    .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+    .badge-green { background: rgba(74,222,128,0.08); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+    .badge-muted { background: rgba(107,106,114,0.1); color: var(--muted); border: 1px solid var(--border); }
+    .results-header h1 { font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.75rem; }
+    .results-header p { color: var(--muted); max-width: 480px; margin: 0 auto; }
+
+    /* STATS */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem;
+      margin-bottom: 3rem; animation: slideUp 0.6s ease 0.1s both;
+    }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem; text-align: center;
+    }
+    .stat .num { font-family: 'Sora', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--gold); }
+    .stat .label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* MODULE CARDS */
+    .modules { display: flex; flex-direction: column; gap: 1.25rem; }
+    .module-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem;
+      animation: slideUp 0.6s ease both;
+    }
+    .module-card:nth-child(1) { animation-delay: 0.1s; }
+    .module-card:nth-child(2) { animation-delay: 0.2s; }
+    .module-card-header { display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.5rem; }
+    .module-number {
+      font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 800; color: var(--gold);
+      line-height: 1; flex-shrink: 0; width: 48px; text-align: center;
+    }
+    .module-meta { flex: 1; }
+    .module-meta h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .module-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .badge-sm {
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .badge-sm-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+    .badge-sm-muted { background: rgba(107,106,114,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+    .module-section { margin-bottom: 1.25rem; }
+    .module-section h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+    .project-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .project-list li {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.88rem; color: var(--text);
+    }
+    .project-list li::before { content: '→'; color: var(--gold); font-size: 0.8rem; }
+    .resources-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .resource-link {
+      padding: 0.3rem 0.75rem; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--muted);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .resource-link:hover { border-color: var(--gold); color: var(--gold); text-decoration: none; }
+
+    /* LOCK GATE */
+    .lock-gate {
+      position: relative; margin-top: 1.25rem;
+    }
+    .locked-modules { position: relative; }
+    .locked-blur {
+      filter: blur(4px); pointer-events: none;
+      opacity: 0.4; user-select: none;
+    }
+    .lock-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, rgba(10,11,15,0.85) 0%, rgba(10,11,15,0.6) 100%);
+      border-radius: 18px; padding: 2rem; text-align: center;
+      z-index: 10;
+    }
+    .lock-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .lock-overlay h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .lock-overlay p { color: var(--muted); font-size: 0.9rem; max-width: 380px; margin-bottom: 1.75rem; }
+    .price-highlight { color: var(--gold); font-weight: 700; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">Campio</a>
+    <div class="nav-actions">
+      <a href="onboarding.html" class="btn btn-outline">Retake quiz</a>
+      <a href="pricing.html" class="btn btn-gold">Unlock full path →</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="results-header">
+      <div class="badge badge-gold">✦ Personalized for you</div>
+      <h1>Your Campio Learning Path</h1>
+      <p>Built for a developer who wants to build AI products, available 5h/week. Here's your 12-week curriculum.</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><div class="num">12</div><div class="label">Weeks total</div></div>
+      <div class="stat"><div class="num">5</div><div class="label">Modules</div></div>
+      <div class="stat"><div class="num">8</div><div class="label">Projects</div></div>
+      <div class="stat"><div class="num">50+</div><div class="label">Resources</div></div>
+    </div>
+
+    <div class="modules">
+
+      <!-- MODULE 1 -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-number">01</div>
+          <div class="module-meta">
+            <h3>Foundations of AI &amp; Machine Learning</h3>
+            <div class="module-badges">
+              <span class="badge-sm badge-sm-gold">2 weeks · 8h</span>
+              <span class="badge badge-green" style="font-size:0.7rem;padding:0.2rem 0.6rem;">✓ Unlocked</span>
+            </div>
+          </div>
+        </div>
+        <div class="module-section">
+          <h4>Projects</h4>
+          <ul class="project-list">
+            <li>Build a simple image classifier using a pre-trained model</li>
+            <li>Explore and visualize an ML dataset end-to-end</li>
+            <li>Write a plain-English explainer on how LLMs work</li>
+          </ul>
+        </div>
+        <div class="module-section">
+          <h4>Resources</h4>
+          <div class="resources-list">
+            <a class="resource-link" href="#">fast.ai Practical Deep Learning</a>
+            <a class="resource-link" href="#">3Blue1Brown — Neural Networks</a>
+            <a class="resource-link" href="#">deeplearning.ai ML Specialization</a>
+            <a class="resource-link" href="#">Andrej Karpathy — Zero to Hero</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODULE 2 -->
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-number">02</div>
+          <div class="module-meta">
+            <h3>Prompt Engineering Mastery</h3>
+            <div class="module-badges">
+              <span class="badge-sm badge-sm-gold">2 weeks · 6h</span>
+              <span class="badge badge-green" style="font-size:0.7rem;padding:0.2rem 0.6rem;">✓ Unlocked</span>
+            </div>
+          </div>
+        </div>
+        <div class="module-section">
+          <h4>Projects</h4>
+          <ul class="project-list">
+            <li>Build a personal prompt library with 20+ battle-tested prompts</li>
+            <li>Chain-of-thought demo: solve 5 complex problems with structured prompting</li>
+          </ul>
+        </div>
+        <div class="module-section">
+          <h4>Resources</h4>
+          <div class="resources-list">
+            <a class="resource-link" href="#">OpenAI Prompt Engineering Guide</a>
+            <a class="resource-link" href="#">deeplearning.ai — ChatGPT for Devs</a>
+            <a class="resource-link" href="#">Lilian Weng's Prompting Blog</a>
+            <a class="resource-link" href="#">Learn Prompting (open source)</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOCKED MODULES -->
+      <div class="lock-gate">
+        <div class="locked-modules locked-blur">
+          <div class="module-card" style="margin-bottom:1.25rem;">
+            <div class="module-card-header">
+              <div class="module-number">03</div>
+              <div class="module-meta">
+                <h3>Building with LLMs &amp; APIs</h3>
+                <div class="module-badges">
+                  <span class="badge-sm badge-sm-muted">3 weeks · 12h</span>
+                </div>
+              </div>
+            </div>
+            <div class="module-section">
+              <h4>Projects</h4>
+              <ul class="project-list">
+                <li>Build a fully functional AI chatbot with memory</li>
+                <li>Integrate OpenAI API into a real web app</li>
+              </ul>
+            </div>
+          </div>
+          <div class="module-card" style="margin-bottom:1.25rem;">
+            <div class="module-card-header">
+              <div class="module-number">04</div>
+              <div class="module-meta">
+                <h3>AI Agents &amp; Automation</h3>
+                <div class="module-badges">
+                  <span class="badge-sm badge-sm-muted">2 weeks · 8h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="module-card">
+            <div class="module-card-header">
+              <div class="module-number">05</div>
+              <div class="module-meta">
+                <h3>Ship Your AI Product</h3>
+                <div class="module-badges">
+                  <span class="badge-sm badge-sm-muted">3 weeks · 10h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <h3>Unlock your full path</h3>
+          <p>Modules 3–5 include building real AI apps, shipping your first product, and mastering agents &amp; automation. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
+          <a href="pricing.html" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;">Get full access — $19 →</a>
+          <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

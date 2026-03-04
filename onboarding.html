@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campio — Build Your Learning Path</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0b0f; --surface: #10121a; --border: #1e2030;
+      --gold: #c9a84c; --gold-light: #e8c97a; --gold-glow: rgba(201,168,76,0.12);
+      --text: #f0efe8; --muted: #6b6a72;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; overflow-x: hidden;
+    }
+    h1, h2, h3 { font-family: 'Sora', sans-serif; }
+
+    /* PROGRESS BAR */
+    .progress-bar-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 3px; background: var(--border);
+    }
+    .progress-bar-fill {
+      height: 100%; background: var(--gold);
+      transition: width 0.4s ease;
+    }
+
+    /* TOP NAV */
+    .top-nav {
+      position: fixed; top: 3px; left: 0; right: 0; z-index: 99;
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .step-counter { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+
+    /* SCREEN */
+    .screen {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 5rem 1.5rem 3rem;
+      opacity: 0; pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .screen.active {
+      opacity: 1; pointer-events: all;
+      transform: translateY(0);
+    }
+    .screen.exit {
+      opacity: 0; transform: translateY(-20px);
+    }
+
+    .question {
+      font-size: clamp(1.6rem, 4.5vw, 3rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      text-align: center; max-width: 680px;
+      margin-bottom: 3rem; line-height: 1.2;
+    }
+    .question em { color: var(--gold); font-style: normal; }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; max-width: 680px; width: 100%;
+    }
+    .option {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.5rem;
+      cursor: pointer; text-align: center;
+      font-size: 0.95rem; font-weight: 500;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .option:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .option.selected {
+      border-color: var(--gold); background: var(--gold-glow);
+      color: var(--gold);
+    }
+    .option .emoji { font-size: 1.4rem; display: block; margin-bottom: 0.5rem; }
+
+    /* BACK BUTTON */
+    .back-btn {
+      position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      background: none; border: none; color: var(--muted);
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--text); }
+
+    /* LOADING SCREEN */
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    #loading-screen.show { display: flex; }
+    .loading-logo { font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--gold); margin-bottom: 2.5rem; }
+    .loading-text { font-size: 1.1rem; color: var(--muted); margin-bottom: 2rem; font-weight: 500; }
+    .loading-bar-wrap { width: 280px; height: 3px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .loading-bar-fill {
+      height: 100%; width: 0%; background: var(--gold); border-radius: 999px;
+      animation: loadingFill 2s ease forwards;
+    }
+    @keyframes loadingFill { to { width: 100%; } }
+    .loading-steps { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
+    .loading-step {
+      font-size: 0.82rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.5rem;
+      opacity: 0; animation: fadeIn 0.4s ease forwards;
+    }
+    .loading-step:nth-child(1) { animation-delay: 0.3s; }
+    .loading-step:nth-child(2) { animation-delay: 0.9s; }
+    .loading-step:nth-child(3) { animation-delay: 1.4s; }
+    .loading-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+    @keyframes fadeIn { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress" style="width:20%"></div>
+  </div>
+
+  <div class="top-nav">
+    <a href="index.html" class="nav-logo">Campio</a>
+    <span class="step-counter" id="step-counter">Step 1 of 5</span>
+  </div>
+
+  <!-- Q1 -->
+  <div class="screen active" id="screen-1">
+    <h2 class="question">What's your current <em>level with AI</em>?</h2>
+    <div class="options">
+      <div class="option" onclick="select(1, this)"><span class="emoji">🌱</span>Complete beginner</div>
+      <div class="option" onclick="select(1, this)"><span class="emoji">🔍</span>Some exposure</div>
+      <div class="option" onclick="select(1, this)"><span class="emoji">⚡</span>Intermediate</div>
+      <div class="option" onclick="select(1, this)"><span class="emoji">🚀</span>Already building</div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="screen" id="screen-2">
+    <h2 class="question">What do you want to <em>achieve</em>?</h2>
+    <div class="options">
+      <div class="option" onclick="select(2, this)"><span class="emoji">🧠</span>Understand AI basics</div>
+      <div class="option" onclick="select(2, this)"><span class="emoji">🛠️</span>Build AI products</div>
+      <div class="option" onclick="select(2, this)"><span class="emoji">💼</span>Transition into AI career</div>
+      <div class="option" onclick="select(2, this)"><span class="emoji">📡</span>Stay ahead in my field</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="screen" id="screen-3">
+    <h2 class="question">How much <em>time</em> can you dedicate per week?</h2>
+    <div class="options">
+      <div class="option" onclick="select(3, this)"><span class="emoji">⏱️</span>2–3 hours</div>
+      <div class="option" onclick="select(3, this)"><span class="emoji">🕐</span>4–6 hours</div>
+      <div class="option" onclick="select(3, this)"><span class="emoji">🔥</span>7–10 hours</div>
+      <div class="option" onclick="select(3, this)"><span class="emoji">⚡</span>10+ hours</div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="screen" id="screen-4">
+    <h2 class="question">What's your <em>background</em>?</h2>
+    <div class="options">
+      <div class="option" onclick="select(4, this)"><span class="emoji">💻</span>Developer</div>
+      <div class="option" onclick="select(4, this)"><span class="emoji">📊</span>Business professional</div>
+      <div class="option" onclick="select(4, this)"><span class="emoji">🎓</span>Student</div>
+      <div class="option" onclick="select(4, this)"><span class="emoji">🎨</span>Creative</div>
+      <div class="option" onclick="select(4, this)"><span class="emoji">🌐</span>Other</div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="screen" id="screen-5">
+    <h2 class="question">What's your preferred <em>learning style</em>?</h2>
+    <div class="options">
+      <div class="option" onclick="select(5, this)"><span class="emoji">📖</span>Reading &amp; docs</div>
+      <div class="option" onclick="select(5, this)"><span class="emoji">🎬</span>Video tutorials</div>
+      <div class="option" onclick="select(5, this)"><span class="emoji">🛠️</span>Hands-on projects</div>
+      <div class="option" onclick="select(5, this)"><span class="emoji">🔀</span>Mixed</div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-screen">
+    <div class="loading-logo">Campio</div>
+    <div class="loading-text">Building your personalized path...</div>
+    <div class="loading-bar-wrap"><div class="loading-bar-fill"></div></div>
+    <div class="loading-steps">
+      <div class="loading-step"><span class="dot"></span>Analyzing your profile</div>
+      <div class="loading-step"><span class="dot"></span>Selecting modules &amp; projects</div>
+      <div class="loading-step"><span class="dot"></span>Curating resources for you</div>
+    </div>
+  </div>
+
+  <button class="back-btn" id="back-btn" onclick="goBack()" style="display:none">← Back</button>
+
+  <script>
+    let current = 1;
+    const total = 5;
+
+    function select(step, el) {
+      el.parentNode.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      setTimeout(() => advance(), 400);
+    }
+
+    function advance() {
+      if (current >= total) {
+        showLoading();
+        return;
+      }
+      const cur = document.getElementById('screen-' + current);
+      cur.classList.add('exit');
+      setTimeout(() => {
+        cur.classList.remove('active', 'exit');
+        current++;
+        const next = document.getElementById('screen-' + current);
+        next.classList.add('active');
+        updateProgress();
+      }, 350);
+    }
+
+    function goBack() {
+      if (current <= 1) return;
+      const cur = document.getElementById('screen-' + current);
+      cur.classList.remove('active');
+      current--;
+      const prev = document.getElementById('screen-' + current);
+      prev.classList.add('active');
+      updateProgress();
+    }
+
+    function updateProgress() {
+      document.getElementById('progress').style.width = (current / total * 100) + '%';
+      document.getElementById('step-counter').textContent = 'Step ' + current + ' of ' + total;
+      document.getElementById('back-btn').style.display = current > 1 ? 'block' : 'none';
+    }
+
+    function showLoading() {
+      document.getElementById('loading-screen').classList.add('show');
+      setTimeout(() => { window.location.href = 'results.html'; }, 2200);
+    }
+  </script>
+</body>
+</html>

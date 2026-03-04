@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campio — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0b0f; --surface: #10121a; --surface2: #13151f; --border: #1e2030;
+      --gold: #c9a84c; --gold-light: #e8c97a; --gold-glow: rgba(201,168,76,0.12);
+      --text: #f0efe8; --muted: #6b6a72; --green: #4ade80; --green-bg: rgba(74,222,128,0.08);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.6; min-height: 100vh; }
+    h1,h2,h3,h4 { font-family: 'Sora', sans-serif; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      padding: 1rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,11,15,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a.active, .nav-links a:hover { color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 999px;
+      background: linear-gradient(135deg, #a07830, var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 700; color: #0a0b0f;
+    }
+    .logout-btn { color: var(--muted); text-decoration: none; font-size: 0.82rem; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--text); }
+    @media (max-width: 640px) { .nav-links { display: none; } nav { padding: 1rem 1.25rem; } }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+    /* HEADER */
+    .dash-header { margin-bottom: 2.5rem; animation: slideUp 0.5s ease both; }
+    .dash-header h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.4rem; }
+    .dash-header p { color: var(--muted); font-size: 0.9rem; }
+
+    /* PROGRESS SECTION */
+    .progress-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 2rem; margin-bottom: 2rem;
+      animation: slideUp 0.5s ease 0.1s both;
+    }
+    .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .progress-label h3 { font-size: 0.9rem; font-weight: 700; }
+    .progress-label span { font-size: 0.82rem; color: var(--gold); font-weight: 600; }
+    .progress-track { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 0.75rem; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 999px; width: 38%; transition: width 1s ease; }
+    .progress-sub { font-size: 0.8rem; color: var(--muted); }
+
+    /* LAYOUT */
+    .dash-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; }
+    @media (max-width: 720px) { .dash-layout { grid-template-columns: 1fr; } }
+
+    /* MODULES */
+    .modules-list { display: flex; flex-direction: column; gap: 1rem; animation: slideUp 0.5s ease 0.2s both; }
+    .module-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .module-item.current { border-color: rgba(201,168,76,0.4); }
+    .module-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem; cursor: pointer;
+    }
+    .module-num-badge {
+      width: 32px; height: 32px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .num-done { background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+    .num-current { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+    .num-locked { background: rgba(107,106,114,0.1); color: var(--muted); border: 1px solid var(--border); }
+    .module-title { flex: 1; }
+    .module-title h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.1rem; }
+    .module-title span { font-size: 0.75rem; color: var(--muted); }
+    .status-badge {
+      font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.7rem; border-radius: 999px;
+      white-space: nowrap;
+    }
+    .status-done { background: var(--green-bg); color: var(--green); }
+    .status-current { background: var(--gold-glow); color: var(--gold); }
+    .status-locked { background: rgba(107,106,114,0.1); color: var(--muted); }
+
+    /* EXPANDED PROJECTS */
+    .module-projects {
+      padding: 0 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .module-projects h5 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 1rem 0 0.75rem; }
+    .project-check {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.5rem 0; cursor: pointer;
+    }
+    .project-check input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--gold);
+      border-radius: 4px; cursor: pointer; flex-shrink: 0;
+    }
+    .project-check label { font-size: 0.88rem; cursor: pointer; }
+    .project-check input:checked + label { color: var(--muted); text-decoration: line-through; }
+
+    /* SIDEBAR */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; animation: slideUp 0.5s ease 0.3s both; }
+
+    .stats-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+    }
+    .stats-card h3 { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { font-size: 0.82rem; color: var(--muted); }
+    .stat-row .value { font-size: 0.88rem; font-weight: 600; }
+    .stat-row .value.gold { color: var(--gold); }
+    .stat-row .value.green { color: var(--green); }
+
+    .ask-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem; text-align: center;
+    }
+    .ask-card .lock-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .ask-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .ask-card p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.5; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      padding: 0.65rem 1.3rem; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; width: 100%;
+    }
+    .btn-gold { background: var(--gold); color: #0a0b0f; }
+    .btn-gold:hover { background: var(--gold-light); text-decoration: none; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Campio</div>
+    <div class="nav-links">
+      <a href="#" class="active">My Path</a>
+      <a href="#">Resources</a>
+      <a href="#">Settings</a>
+    </div>
+    <div class="nav-right">
+      <div class="avatar-sm">AJ</div>
+      <a href="index.html" class="logout-btn">Log out</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="dash-header">
+      <h1>Welcome back, Alex 👋</h1>
+      <p>You're making solid progress. Keep the momentum going.</p>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <h3>Overall Progress</h3>
+        <span>Module 2 of 5 · 38% complete</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-sub">AI Builder Track · 12 weeks total · Est. 4 weeks remaining in current module</div>
+    </div>
+
+    <div class="dash-layout">
+
+      <!-- MODULES -->
+      <div class="modules-list">
+
+        <div class="module-item">
+          <div class="module-header">
+            <div class="module-num-badge num-done">✓</div>
+            <div class="module-title">
+              <h4>Foundations of AI &amp; ML</h4>
+              <span>2 weeks · 8h · 3 projects</span>
+            </div>
+            <span class="status-badge status-done">Completed</span>
+          </div>
+        </div>
+
+        <div class="module-item current">
+          <div class="module-header" onclick="toggleProjects(this)">
+            <div class="module-num-badge num-current">02</div>
+            <div class="module-title">
+              <h4>Prompt Engineering Mastery</h4>
+              <span>2 weeks · 6h · 2 projects</span>
+            </div>
+            <span class="status-badge status-current">→ In Progress</span>
+          </div>
+          <div class="module-projects" id="proj-2">
+            <h5>Projects</h5>
+            <label class="project-check">
+              <input type="checkbox" checked />
+              <label>Build a personal prompt library with 20+ templates</label>
+            </label>
+            <label class="project-check">
+              <input type="checkbox" />
+              <label>Chain-of-thought demo: solve 5 complex reasoning tasks</label>
+            </label>
+          </div>
+        </div>
+
+        <div class="module-item">
+          <div class="module-header">
+            <div class="module-num-badge num-locked">🔒</div>
+            <div class="module-title">
+              <h4>Building with LLMs &amp; APIs</h4>
+              <span>3 weeks · 12h · 2 projects</span>
+            </div>
+            <span class="status-badge status-locked">Locked</span>
+          </div>
+        </div>
+
+        <div class="module-item">
+          <div class="module-header">
+            <div class="module-num-badge num-locked">🔒</div>
+            <div class="module-title">
+              <h4>AI Agents &amp; Automation</h4>
+              <span>2 weeks · 8h · 1 project</span>
+            </div>
+            <span class="status-badge status-locked">Locked</span>
+          </div>
+        </div>
+
+        <div class="module-item">
+          <div class="module-header">
+            <div class="module-num-badge num-locked">🔒</div>
+            <div class="module-title">
+              <h4>Ship Your AI Product</h4>
+              <span>3 weeks · 10h · 2 projects</span>
+            </div>
+            <span class="status-badge status-locked">Locked</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+
+        <div class="stats-card">
+          <h3>Your Stats</h3>
+          <div class="stat-row">
+            <span class="label">Modules done</span>
+            <span class="value gold">1 / 5</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Projects done</span>
+            <span class="value">2 / 8</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Current streak</span>
+            <span class="value green">4 days 🔥</span>
+          </div>
+          <div class="stat-row">
+            <span class="label">Time invested</span>
+            <span class="value">12h</span>
+          </div>
+        </div>
+
+        <div class="ask-card">
+          <div class="lock-icon">🔒</div>
+          <h3>Ask Campio</h3>
+          <p>Get instant answers about your learning path, concepts, and projects from Campio's AI.</p>
+          <a href="pricing.html" class="btn btn-gold">Upgrade to Pro →</a>
+          <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--muted);">Pro feature · $29/month</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleProjects(header) {
+      const projects = header.nextElementSibling;
+      if (projects) {
+        projects.style.display = projects.style.display === 'none' ? '' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>
