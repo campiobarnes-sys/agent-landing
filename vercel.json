@@ -15,6 +15,7 @@
     { "src": "/success.html", "dest": "/success.html" },
     { "src": "/api/checkout", "dest": "/api/checkout.js" },
     { "src": "/api/verify", "dest": "/api/verify.js" },
+    { "src": "/api/capture-email", "dest": "/api/capture-email.js" },
     { "src": "/", "dest": "/index.html" },
     { "src": "/index.html", "dest": "/index.html" }
   ]

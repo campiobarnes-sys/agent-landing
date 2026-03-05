@@ -40,6 +40,35 @@
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); text-decoration: none; }
     @media (max-width: 600px) { nav { padding: 1rem 1.25rem; } }
 
+    /* EMAIL CAPTURE */
+    .email-gate { text-align: center; }
+    .email-gate h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .email-gate p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.6; }
+    .email-form { display: flex; gap: 0.5rem; max-width: 420px; margin: 0 auto 0.75rem; }
+    .email-input {
+      flex: 1; padding: 0.75rem 1rem; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .email-input:focus { border-color: var(--gold); }
+    .email-input::placeholder { color: var(--muted); }
+    .email-submit {
+      padding: 0.75rem 1.5rem; border-radius: 10px; border: none; cursor: pointer;
+      background: var(--gold); color: #0a0b0f; font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; font-weight: 700; transition: all 0.2s; white-space: nowrap;
+    }
+    .email-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .email-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .email-skip { font-size: 0.78rem; color: var(--muted); cursor: pointer; background: none; border: none; }
+    .email-skip:hover { color: var(--text); }
+    .email-error { color: #f87171; font-size: 0.82rem; margin-top: 0.4rem; }
+    .pay-gate { text-align: center; }
+    .pay-gate h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .pay-gate p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.6; }
+    @media (max-width: 500px) { .email-form { flex-direction: column; } }
+
+
     .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
 
     /* SKELETON / LOADING STATE */
@@ -205,11 +234,24 @@
         });
         html += `</div>
           <div class="lock-overlay">
-            <div class="lock-icon">🔒</div>
-            <h3>Unlock your full path</h3>
-            <p>Your remaining ${lockedModules.length} modules are ready — including real projects, curated resources, and everything you need to ship. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
-            <button onclick="startCheckout('starter')" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;border:none;cursor:pointer;">Get full access — $19 →</button>
-            <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
+            <div id="email-gate-step" class="email-gate">
+              <div class="lock-icon">📬</div>
+              <h3>Save your path + get updates</h3>
+              <p>Enter your email to save this path and get notified when new modules and resources drop.</p>
+              <form class="email-form" onsubmit="submitEmail(event)">
+                <input id="email-input" type="email" class="email-input" placeholder="you@example.com" required autocomplete="email" />
+                <button type="submit" class="email-submit" id="email-submit-btn">Save path →</button>
+              </form>
+              <div id="email-error" class="email-error" style="display:none;"></div>
+              <button class="email-skip" onclick="showPayGate()">Skip — just unlock now</button>
+            </div>
+            <div id="pay-gate-step" class="pay-gate" style="display:none;">
+              <div class="lock-icon">🔒</div>
+              <h3>Unlock your full path</h3>
+              <p>Your remaining ${lockedModules.length} modules are ready — real projects, curated resources, everything you need to ship. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
+              <button onclick="startCheckout('starter')" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;border:none;cursor:pointer;">Get full access — $19 →</button>
+              <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
+            </div>
           </div>
         </div>`;
       }
@@ -279,6 +321,46 @@
       }
     } else {
       renderError();
+    }
+
+
+    async function submitEmail(e) {
+      e.preventDefault();
+      const email = document.getElementById('email-input').value.trim();
+      const btn = document.getElementById('email-submit-btn');
+      const errEl = document.getElementById('email-error');
+
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/capture-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'results-gate' })
+        });
+        // Whether it succeeds or fails, move to pay gate
+        localStorage.setItem('campio_email', email);
+      } catch(e) {}
+
+      showPayGate();
+    }
+
+    function showPayGate() {
+      const eg = document.getElementById('email-gate-step');
+      const pg = document.getElementById('pay-gate-step');
+      if (eg) eg.style.display = 'none';
+      if (pg) pg.style.display = 'block';
+    }
+
+    // If email already captured, skip to pay gate
+    if (localStorage.getItem('campio_email')) {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(showPayGate, 100);
+      });
     }
 
     async function startCheckout(plan) {
