@@ -1,9 +1,12 @@
 import Stripe from "stripe";
+import https from "https";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    httpClient: Stripe.createNodeHttpClient(https),
+  });
   const { plan = "starter" } = req.body;
 
   const plans = {
