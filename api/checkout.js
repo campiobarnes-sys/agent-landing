@@ -9,22 +9,24 @@ export default async function handler(req, res) {
   };
 
   const selected = plans[plan] || plans.starter;
-  const base = process.env.NEXT_PUBLIC_BASE_URL || `https://${req.headers.host}`;
+  const base = "https://www.campioai.com";
   const key = process.env.STRIPE_SECRET_KEY;
 
   try {
-    const params = new URLSearchParams();
-    params.append("mode", selected.mode);
-    params.append("success_url", `${base}/success?session_id={CHECKOUT_SESSION_ID}`);
-    params.append("cancel_url", `${base}/pricing`);
-    params.append("payment_method_types[0]", "card");
-    params.append("line_items[0][quantity]", "1");
-    params.append("line_items[0][price_data][currency]", "usd");
-    params.append("line_items[0][price_data][product_data][name]", selected.name);
-    params.append("line_items[0][price_data][unit_amount]", String(selected.amount));
+    // Build body manually to prevent URLSearchParams from encoding {CHECKOUT_SESSION_ID}
+    const parts = [
+      `mode=${selected.mode}`,
+      `success_url=${encodeURIComponent(base + "/success")}%3Fsession_id%3D{CHECKOUT_SESSION_ID}`,
+      `cancel_url=${encodeURIComponent(base + "/pricing")}`,
+      `payment_method_types[0]=card`,
+      `line_items[0][quantity]=1`,
+      `line_items[0][price_data][currency]=usd`,
+      `line_items[0][price_data][product_data][name]=${encodeURIComponent(selected.name)}`,
+      `line_items[0][price_data][unit_amount]=${selected.amount}`,
+    ];
 
     if (selected.mode === "subscription") {
-      params.append("line_items[0][price_data][recurring][interval]", "month");
+      parts.push("line_items[0][price_data][recurring][interval]=month");
     }
 
     const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
@@ -33,13 +35,13 @@ export default async function handler(req, res) {
         "Authorization": `Bearer ${key}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: params.toString(),
+      body: parts.join("&"),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Stripe error:", data);
+      console.error("Stripe error:", JSON.stringify(data));
       return res.status(500).json({ error: "Failed to create checkout session", detail: data?.error?.message });
     }
 
