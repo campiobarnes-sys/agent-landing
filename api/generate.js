@@ -58,8 +58,9 @@ Rules:
 - Total weeks should be realistic given ${time}/week availability`;
 
   try {
+    const model = process.env.CAMPIO_MODEL || "claude-opus-4-5";
     const message = await client.messages.create({
-      model: "claude-opus-4-5",
+      model,
       max_tokens: 2048,
       messages: [{ role: "user", content: prompt }],
     });

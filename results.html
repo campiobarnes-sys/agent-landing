@@ -156,6 +156,7 @@
     <a href="index.html" class="nav-logo">Campio</a>
     <div class="nav-actions">
       <a href="onboarding.html" class="btn btn-outline">Retake quiz</a>
+      <a href="dashboard.html" class="btn btn-outline">Dashboard</a>
       <a href="pricing.html" class="btn btn-gold">Unlock full path →</a>
     </div>
   </nav>
@@ -268,8 +269,8 @@
       `;
     }
 
-    // Load path from sessionStorage
-    const stored = sessionStorage.getItem('campio_path');
+    // Load path from sessionStorage or localStorage fallback
+    const stored = sessionStorage.getItem('campio_path') || localStorage.getItem('campio_path');
     if (stored) {
       try {
         renderPath(JSON.parse(stored));

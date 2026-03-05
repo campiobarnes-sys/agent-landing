@@ -278,8 +278,11 @@
           throw new Error(data.error || 'Generation failed');
         }
 
-        // Save to sessionStorage and redirect
-        sessionStorage.setItem('campio_path', JSON.stringify(data.path));
+        // Save to sessionStorage (results page) + localStorage (dashboard)
+        const pathJson = JSON.stringify(data.path);
+        sessionStorage.setItem('campio_path', pathJson);
+        localStorage.setItem('campio_path', pathJson);
+        localStorage.setItem('campio_answers', JSON.stringify(answers));
         animateLoadingBar(100, 300);
         setTimeout(() => { window.location.href = 'results.html'; }, 500);
 

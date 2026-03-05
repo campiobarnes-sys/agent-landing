@@ -289,11 +289,156 @@
   </div>
 
   <script>
-    function toggleProjects(header) {
-      const projects = header.nextElementSibling;
+    // Load persisted path and answers from localStorage
+    const pathRaw = localStorage.getItem('campio_path');
+    const answersRaw = localStorage.getItem('campio_answers');
+
+    function toggleProjects(btn) {
+      const projects = btn.closest('.module-item').querySelector('.module-projects');
       if (projects) {
         projects.style.display = projects.style.display === 'none' ? '' : 'none';
       }
+    }
+
+    // Persist checkbox state
+    function saveProgress() {
+      const checks = document.querySelectorAll('.project-check input[type=checkbox]');
+      const state = {};
+      checks.forEach(c => { state[c.dataset.id] = c.checked; });
+      localStorage.setItem('campio_progress', JSON.stringify(state));
+    }
+
+    function loadProgress() {
+      const raw = localStorage.getItem('campio_progress');
+      if (!raw) return;
+      try {
+        const state = JSON.parse(raw);
+        Object.entries(state).forEach(([id, checked]) => {
+          const el = document.querySelector(`input[data-id="${id}"]`);
+          if (el) el.checked = checked;
+        });
+      } catch(e) {}
+    }
+
+    function countProgress(path) {
+      const raw = localStorage.getItem('campio_progress');
+      let done = 0, total = 0;
+      path.modules.forEach(m => {
+        (m.projects || []).forEach((p, i) => {
+          total++;
+          const id = `m${m.number}-p${i}`;
+          if (raw) {
+            try { if (JSON.parse(raw)[id]) done++; } catch(e) {}
+          }
+        });
+      });
+      return { done, total };
+    }
+
+    function renderDashboard(path, answers) {
+      const unlockedCount = 2;
+      const { done, total } = countProgress(path);
+      const completedModules = path.modules.filter((_, i) => {
+        // A module counts as done if all its projects are checked
+        const raw = localStorage.getItem('campio_progress');
+        if (!raw) return false;
+        try {
+          const state = JSON.parse(raw);
+          return (path.modules[i].projects || []).every((_, j) => state[`m${path.modules[i].number}-p${j}`]);
+        } catch(e) { return false; }
+      }).length;
+      const pct = total > 0 ? Math.round(done / total * 100) : 0;
+      const currentMod = path.modules.find((m, i) => i >= completedModules) || path.modules[0];
+
+      // Header
+      document.querySelector('.dash-header h1').textContent = `Your AI learning path 🎯`;
+      document.querySelector('.dash-header p').textContent = path.summary;
+
+      // Progress bar
+      document.querySelector('.progress-label span').textContent =
+        `Module ${completedModules + 1} of ${path.modules.length} · ${pct}% complete`;
+      document.querySelector('.progress-fill').style.width = pct + '%';
+      document.querySelector('.progress-sub').textContent =
+        `${path.headline} · ${path.totalWeeks} weeks total`;
+
+      // Modules list
+      const list = document.querySelector('.modules-list');
+      list.innerHTML = '';
+      path.modules.forEach((mod, i) => {
+        const isCompleted = i < completedModules;
+        const isCurrent = i === completedModules;
+        const isLocked = !isCompleted && !isCurrent && i >= unlockedCount;
+        const isFree = i < unlockedCount;
+
+        let numClass = isCompleted ? 'num-done' : isCurrent ? 'num-current' : 'num-locked';
+        let numLabel = isCompleted ? '✓' : isLocked ? '🔒' : String(mod.number).padStart(2,'0');
+        let statusClass = isCompleted ? 'status-done' : isCurrent ? 'status-current' : 'status-locked';
+        let statusLabel = isCompleted ? 'Completed' : isCurrent ? '→ In Progress' : isLocked ? 'Locked' : 'Unlocked';
+
+        const projects = (mod.projects || []).map((p, j) => `
+          <label class="project-check">
+            <input type="checkbox" data-id="m${mod.number}-p${j}" onchange="saveProgress()" />
+            <label>${p}</label>
+          </label>
+        `).join('');
+
+        const projectsSection = projects ? `
+          <div class="module-projects" ${!isCurrent ? 'style="display:none"' : ''}>
+            <h5>Projects</h5>
+            ${projects}
+          </div>` : '';
+
+        list.innerHTML += `
+          <div class="module-item ${isCurrent ? 'current' : ''}">
+            <div class="module-header" onclick="toggleProjects(this)">
+              <div class="module-num-badge ${numClass}">${numLabel}</div>
+              <div class="module-title">
+                <h4>${mod.title}</h4>
+                <span>${mod.weeks} weeks · ${mod.hours}h · ${(mod.projects||[]).length} projects</span>
+              </div>
+              <span class="status-badge ${statusClass}">${statusLabel}</span>
+            </div>
+            ${projectsSection}
+          </div>
+        `;
+      });
+
+      // Stats sidebar
+      const statsCard = document.querySelector('.stats-card');
+      statsCard.innerHTML = `
+        <h3>Your Stats</h3>
+        <div class="stat-row"><span class="label">Modules done</span><span class="value gold">${completedModules} / ${path.modules.length}</span></div>
+        <div class="stat-row"><span class="label">Projects done</span><span class="value">${done} / ${total}</span></div>
+        <div class="stat-row"><span class="label">Total weeks</span><span class="value">${path.totalWeeks}</span></div>
+        <div class="stat-row"><span class="label">Resources</span><span class="value">${path.totalResources}+</span></div>
+      `;
+
+      loadProgress();
+    }
+
+    function renderEmpty() {
+      document.querySelector('.dash-header h1').textContent = 'No path yet';
+      document.querySelector('.dash-header p').textContent = "You haven't built your personalized path yet.";
+      document.querySelector('.modules-list').innerHTML = `
+        <div style="text-align:center;padding:4rem 2rem;background:var(--surface);border:1px solid var(--border);border-radius:18px;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">🗺️</div>
+          <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">No path generated yet</h3>
+          <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem;">Answer 5 quick questions and get your personalized AI curriculum in 60 seconds.</p>
+          <a href="onboarding.html" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.75rem 1.75rem;border-radius:10px;background:var(--gold);color:#0a0b0f;font-weight:700;text-decoration:none;">Build my path →</a>
+        </div>
+      `;
+    }
+
+    if (pathRaw) {
+      try {
+        const path = JSON.parse(pathRaw);
+        const answers = answersRaw ? JSON.parse(answersRaw) : {};
+        renderDashboard(path, answers);
+      } catch(e) {
+        renderEmpty();
+      }
+    } else {
+      renderEmpty();
     }
   </script>
 </body>
