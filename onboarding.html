@@ -126,7 +126,7 @@
   </div>
 
   <div class="top-nav">
-    <a href="index.html" class="nav-logo">Campio</a>
+    <a href="/" class="nav-logo">Campio</a>
     <span class="step-counter" id="step-counter">Step 1 of 5</span>
   </div>
 
@@ -284,12 +284,12 @@
         localStorage.setItem('campio_path', pathJson);
         localStorage.setItem('campio_answers', JSON.stringify(answers));
         animateLoadingBar(100, 300);
-        setTimeout(() => { window.location.href = 'results.html'; }, 500);
+        setTimeout(() => { window.location.href = '/results'; }, 500);
 
       } catch (err) {
         console.error(err);
         document.getElementById('error-container').innerHTML =
-          `<div class="error-msg">Something went wrong generating your path. Please <a href="onboarding.html" style="color:var(--gold)">try again</a>.</div>`;
+          `<div class="error-msg">Something went wrong generating your path. Please <a href="/onboarding" style="color:var(--gold)">try again</a>.</div>`;
         animateLoadingBar(0, 300);
       }
     }

@@ -2,10 +2,15 @@
   "version": 2,
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/onboarding.html", "dest": "/onboarding.html" },
     { "src": "/onboarding", "dest": "/onboarding.html" },
+    { "src": "/results.html", "dest": "/results.html" },
     { "src": "/results", "dest": "/results.html" },
+    { "src": "/dashboard.html", "dest": "/dashboard.html" },
     { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/pricing.html", "dest": "/pricing.html" },
     { "src": "/pricing", "dest": "/pricing.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/index.html", "dest": "/index.html" }
   ]
 }
