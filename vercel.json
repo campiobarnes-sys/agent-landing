@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "analytics": { "id": "campio" },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/onboarding.html", "dest": "/onboarding.html" },
