@@ -157,7 +157,7 @@
     <div class="nav-actions">
       <a href="/onboarding" class="btn btn-outline">Retake quiz</a>
       <a href="/dashboard" class="btn btn-outline">Dashboard</a>
-      <a href="/pricing" class="btn btn-gold">Unlock full path →</a>
+      <button onclick="startCheckout('starter')" class="btn btn-gold" style="border:none;cursor:pointer;">Unlock full path →</button>
     </div>
   </nav>
 
@@ -208,7 +208,7 @@
             <div class="lock-icon">🔒</div>
             <h3>Unlock your full path</h3>
             <p>Your remaining ${lockedModules.length} modules are ready — including real projects, curated resources, and everything you need to ship. <span class="price-highlight">One-time payment. Lifetime access.</span></p>
-            <a href="/pricing" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;">Get full access — $19 →</a>
+            <button onclick="startCheckout('starter')" class="btn btn-gold" style="font-size:1rem;padding:0.85rem 2.2rem;border:none;cursor:pointer;">Get full access — $19 →</button>
             <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">30-day money-back guarantee · No subscription</p>
           </div>
         </div>`;
@@ -279,6 +279,31 @@
       }
     } else {
       renderError();
+    }
+
+    async function startCheckout(plan) {
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan })
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else alert('Something went wrong. Please try again.');
+      } catch(e) {
+        alert('Something went wrong. Please try again.');
+      }
+    }
+
+    // Unlock full path if returning from successful payment
+    if (localStorage.getItem('campio_unlocked') === 'true') {
+      document.querySelectorAll('.lock-gate').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.locked-blur').forEach(el => {
+        el.style.filter = 'none';
+        el.style.pointerEvents = 'auto';
+        el.style.opacity = '1';
+      });
     }
   </script>
 </body>

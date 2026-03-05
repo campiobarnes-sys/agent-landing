@@ -10,6 +10,11 @@
     { "src": "/dashboard", "dest": "/dashboard.html" },
     { "src": "/pricing.html", "dest": "/pricing.html" },
     { "src": "/pricing", "dest": "/pricing.html" },
+    { "src": "/pricing.html", "dest": "/pricing.html" },
+    { "src": "/success", "dest": "/success.html" },
+    { "src": "/success.html", "dest": "/success.html" },
+    { "src": "/api/checkout", "dest": "/api/checkout.js" },
+    { "src": "/api/verify", "dest": "/api/verify.js" },
     { "src": "/", "dest": "/index.html" },
     { "src": "/index.html", "dest": "/index.html" }
   ]

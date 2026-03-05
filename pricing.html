@@ -223,7 +223,7 @@
           <li><span class="check">✓</span> PDF export of your full path</li>
           <li><span class="check-muted">–</span> <span style="color:var(--muted)">Ask Campio AI Q&amp;A</span></li>
         </ul>
-        <a href="/onboarding" class="btn btn-gold">Get full access →</a>
+        <button onclick="startCheckout('starter')" class="btn btn-gold" style="border:none;cursor:pointer;">Get full access — $19 →</button>
       </div>
 
       <!-- PRO -->
@@ -240,7 +240,7 @@
           <li><span class="check">✓</span> Early access to new features</li>
           <li><span class="check">✓</span> Cancel anytime</li>
         </ul>
-        <a href="/onboarding" class="btn btn-ghost-gold">Go Pro →</a>
+        <button onclick="startCheckout('pro')" class="btn btn-ghost-gold" style="border:none;cursor:pointer;">Go Pro — $29/mo →</button>
       </div>
 
     </div>
@@ -308,6 +308,21 @@
     function toggleFaq(btn) {
       const item = btn.parentElement;
       item.classList.toggle('open');
+    }
+
+    async function startCheckout(plan) {
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan })
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+        else alert('Something went wrong. Please try again.');
+      } catch(e) {
+        alert('Something went wrong. Please try again.');
+      }
     }
   </script>
 </body>
