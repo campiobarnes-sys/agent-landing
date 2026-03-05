@@ -4,7 +4,10 @@ export default async function handler(req, res) {
   const { session_id } = req.body;
   if (!session_id) return res.status(400).json({ error: "Missing session_id" });
 
-  const key = process.env.STRIPE_SECRET_KEY;
+  const testMode = process.env.STRIPE_TEST_MODE === "true";
+  const key = testMode
+    ? process.env.STRIPE_SECRET_KEY_TEST
+    : process.env.STRIPE_SECRET_KEY;
 
   try {
     const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${session_id}`, {
@@ -25,7 +28,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({ success: false });
+    return res.status(200).json({ success: false, status: session.payment_status });
   } catch (err) {
     console.error("Verify error:", err);
     return res.status(500).json({ error: "Failed to verify session", detail: err.message });

@@ -10,10 +10,14 @@ export default async function handler(req, res) {
 
   const selected = plans[plan] || plans.starter;
   const base = "https://www.campioai.com";
-  const key = process.env.STRIPE_SECRET_KEY;
+
+  // Use test key when STRIPE_TEST_MODE=true, else live
+  const testMode = process.env.STRIPE_TEST_MODE === "true";
+  const key = testMode
+    ? process.env.STRIPE_SECRET_KEY_TEST
+    : process.env.STRIPE_SECRET_KEY;
 
   try {
-    // Build body manually to prevent URLSearchParams from encoding {CHECKOUT_SESSION_ID}
     const parts = [
       `mode=${selected.mode}`,
       `success_url=${encodeURIComponent(base + "/success")}%3Fsession_id%3D{CHECKOUT_SESSION_ID}`,
@@ -23,6 +27,7 @@ export default async function handler(req, res) {
       `line_items[0][price_data][currency]=usd`,
       `line_items[0][price_data][product_data][name]=${encodeURIComponent(selected.name)}`,
       `line_items[0][price_data][unit_amount]=${selected.amount}`,
+      `metadata[plan]=${plan}`,
     ];
 
     if (selected.mode === "subscription") {
@@ -45,7 +50,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Failed to create checkout session", detail: data?.error?.message });
     }
 
-    return res.status(200).json({ url: data.url });
+    return res.status(200).json({ url: data.url, test: testMode });
   } catch (err) {
     console.error("Checkout error:", err);
     return res.status(500).json({ error: "Failed to create checkout session", detail: err.message });
